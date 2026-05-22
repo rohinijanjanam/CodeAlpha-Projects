@@ -8,16 +8,19 @@ Projects Included
   Basic arithmetic operations
   Keyboard support
   Responsive design
+  
 ##Photo Gallery
   Image search and filters
   Dark/Light mode
   Lightbox preview
   Responsive layout
+  
 ##Music Player
   Playlist support
   Shuffle and autoplay
   Progress bar
   Volume controls
+  
 ##Portfolio Website
   About section
   Skills section
