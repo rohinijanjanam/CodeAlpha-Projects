@@ -1,0 +1,849 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Photo Gallery</title>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #eff6ff;
+            --panel: rgba(255, 255, 255, 0.95);
+            --surface: #ffffff;
+            --surface-muted: rgba(255, 255, 255, 0.85);
+            --text: #0f172a;
+            --muted: #475569;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 22px 70px rgba(15, 23, 42, 0.08);
+            --accent: #fb923c;
+            --accent-strong: #ea580c;
+            --overlay: rgba(15, 23, 42, 0.9);
+        }
+
+        .dark {
+            color-scheme: dark;
+            --bg: #0f172a;
+            --panel: rgba(15, 23, 42, 0.96);
+            --surface: #111827;
+            --surface-muted: rgba(30, 41, 59, 0.9);
+            --text: #f8fafc;
+            --muted: #cbd5e1;
+            --border: rgba(148, 163, 184, 0.12);
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+            --accent: #fb923c;
+            --accent-strong: #f97316;
+            --overlay: rgba(15, 23, 42, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #f0f7ff 0%, #eef2ff 35%, var(--bg) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px 18px;
+            transition: background 260ms ease, color 260ms ease;
+        }
+
+        body.dark {
+            background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.88) 30%, var(--bg) 100%);
+        }
+
+        .container {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding: 0 12px;
+        }
+
+        header h1 {
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            max-width: 760px;
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 0 12px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .search-box input {
+            border: 0;
+            outline: none;
+            width: 100%;
+            font-size: 0.98rem;
+            color: var(--text);
+            background: transparent;
+        }
+
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-actions button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--text);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+        }
+
+        .toolbar-actions button:hover {
+            transform: translateY(-2px);
+            background: var(--surface-muted);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 12px;
+            margin-bottom: 26px;
+        }
+
+        .filter-btn,
+        .folder-card {
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+            background: rgba(255, 255, 255, 0.92);
+            color: #334155;
+            font-weight: 600;
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+        }
+
+        body.dark .filter-btn,
+        body.dark .folder-card,
+        body.dark .search-box,
+        body.dark .toolbar-actions button,
+        body.dark .meta .actions button,
+        body.dark .lightbox-panel,
+        body.dark .settings-panel {
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn:hover,
+        .folder-card:hover {
+            transform: translateY(-2px);
+            background: white;
+        }
+
+        .filter-btn.active,
+        .folder-card.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 18px 35px rgba(251, 146, 60, 0.22);
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+            padding: 0 12px;
+        }
+
+        .folder-card {
+            display: grid;
+            gap: 4px;
+            place-items: start flex-start;
+            min-height: auto;
+            padding: 10px 14px;
+        }
+
+        .folder-card span:first-child {
+            font-size: 0.98rem;
+            font-weight: 700;
+        }
+
+        .folder-card span:last-child {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+            padding: 0 12px 28px;
+        }
+
+        .gallery.compact {
+            grid-template-columns: 1fr;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            transition: transform 300ms ease, box-shadow 300ms ease, filter 220ms ease;
+        }
+
+        .gallery-item.no-shadow {
+            box-shadow: none;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 26px 70px rgba(15, 23, 42, 0.12);
+        }
+
+        .gallery-item.compact {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0;
+            align-items: center;
+        }
+
+        .gallery-item .photo {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            transition: transform 500ms ease, filter 500ms ease;
+            display: block;
+        }
+
+        .gallery.compact .gallery-item .photo {
+            aspect-ratio: 16 / 9;
+        }
+
+        .gallery-item:hover .photo {
+            transform: scale(1.06);
+            filter: saturate(1.15) brightness(0.95);
+        }
+
+        .meta {
+            padding: 18px 18px 20px;
+        }
+
+        .meta.hide-description p {
+            display: none;
+        }
+
+        .meta .category {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(248, 113, 30, 0.12);
+            color: #c2410c;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .meta h2 {
+            font-size: 1.18rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .meta p {
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+
+        .meta .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .meta .actions button {
+            border: 0;
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            color: var(--text);
+            cursor: pointer;
+            transition: transform 180ms ease, background 180ms ease;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+
+        .meta .actions button:hover {
+            transform: translateY(-1px);
+            background: #f1f5f9;
+        }
+
+        body.dark .meta .actions button {
+            background: #1e293b;
+            color: var(--text);
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
+        }
+
+        body.dark .meta .actions button:hover {
+            background: #111827;
+        }
+
+        .no-results {
+            display: none;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 12px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--text);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        body.dark .no-results {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 220ms ease;
+        }
+
+        .lightbox.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-panel {
+            position: relative;
+            width: min(92vw, 980px);
+            max-height: 92vh;
+            display: grid;
+            gap: 18px;
+            align-items: center;
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .lightbox img {
+            width: 100%;
+            border-radius: 20px;
+            max-height: 78vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .lightbox-caption {
+            color: var(--muted);
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .lightbox-background {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+        }
+
+        .lightbox-controls {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            pointer-events: none;
+        }
+
+        .control-btn,
+        .close-btn {
+            pointer-events: auto;
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text);
+            font-size: 1.75rem;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        .control-btn:hover,
+        .close-btn:hover {
+            transform: scale(1.05);
+            background: rgba(251, 146, 60, 0.95);
+            color: white;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            font-size: 1.2rem;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 50%;
+            right: 24px;
+            transform: translateY(-50%);
+            width: min(320px, 100%);
+            background: var(--surface);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            padding: 22px;
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+        }
+
+        .settings-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .settings-panel h3 {
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .settings-group {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .settings-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.96rem;
+        }
+
+        .settings-group select,
+        .settings-group input[type='checkbox'] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--surface-muted);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .settings-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text);
+            background: var(--surface-muted);
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .settings-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .settings-footer button {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .settings-footer .save-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .settings-footer .close-settings {
+            background: var(--surface-muted);
+            color: var(--text);
+        }
+
+        @media (max-width: 860px) {
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .lightbox img {
+                max-height: 70vh;
+            }
+
+            .settings-panel {
+                right: 12px;
+                width: calc(100% - 24px);
+                left: 12px;
+            }
+        }
+
+        @media (max-width: 620px) {
+
+            .filter-buttons,
+            .folder-grid {
+                justify-content: center;
+            }
+
+            .folder-card,
+            .filter-btn,
+            .search-box {
+                width: 100%;
+            }
+
+            .meta {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Modern Photo Gallery</h1>
+            <p>Use the settings panel to switch themes, change the gallery layout, hide descriptions, and adjust the
+                visual experience.</p>
+        </header>
+
+        <div class="toolbar">
+            <div class="search-box">
+                <input id="searchInput" type="search" placeholder="Search images by title, category, or mood..."
+                    aria-label="Search gallery" />
+            </div>
+            <div class="toolbar-actions">
+                <button id="settingsToggle" type="button">Settings ⚙️</button>
+                <button id="resetButton" type="button">Reset Filters</button>
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="nature">Nature</button>
+            <button class="filter-btn" data-filter="city">City</button>
+            <button class="filter-btn" data-filter="animals">Animals</button>
+            <button class="filter-btn" data-filter="travel">Travel</button>
+            <button class="filter-btn" data-filter="food">Food</button>
+        </div>
+
+        <div class="folder-grid">
+            <button class="folder-card active" data-filter="all">
+                <span>All Collections</span>
+                <span>12 photos</span>
+            </button>
+            <button class="folder-card" data-filter="nature">
+                <span>Nature Folder</span>
+                <span>4 photos</span>
+            </button>
+            <button class="folder-card" data-filter="city">
+                <span>City Scenes</span>
+                <span>3 photos</span>
+            </button>
+            <button class="folder-card" data-filter="animals">
+                <span>Wildlife Folder</span>
+                <span>2 photos</span>
+            </button>
+            <button class="folder-card" data-filter="travel">
+                <span>Travel Stories</span>
+                <span>2 photos</span>
+            </button>
+            <button class="folder-card" data-filter="food">
+                <span>Food & Lifestyle</span>
+                <span>1 photo</span>
+            </button>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <article class="gallery-item nature" data-title="Misty Mountain Lake" data-category="Nature"
+                data-date="2024-08-12" data-time="07:30 PM">
+                <img class="photo" src="https://picsum.photos/id/1015/900/675" alt="Misty mountain lake" />
+                <div class="meta">
+                    <span class="category">Nature</span>
+                    <h2>Misty Mountain Lake</h2>
+                    <p>Date: 2024-08-12 | Time: 07:30 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item city" data-title="Golden Hour Skyline" data-category="City"
+                data-date="2024-09-05" data-time="06:15 PM">
+                <img class="photo" src="https://picsum.photos/id/1011/900/675" alt="Golden hour skyline" />
+                <div class="meta">
+                    <span class="category">City</span>
+                    <h2>Golden Hour Skyline</h2>
+                    <p>Date: 2024-09-05 | Time: 06:15 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item animals" data-title="Joyful Golden Retriever" data-category="Animals"
+                data-date="2024-07-18" data-time="11:45 AM">
+                <img class="photo" src="https://picsum.photos/id/1025/900/675" alt="Joyful golden retriever" />
+                <div class="meta">
+                    <span class="category">Animals</span>
+                    <h2>Joyful Golden Retriever</h2>
+                    <p>Date: 2024-07-18 | Time: 11:45 AM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item travel" data-title="Seaside Cliffs" data-category="Travel"
+                data-date="2024-09-22" data-time="09:00 AM">
+                <img class="photo" src="https://picsum.photos/id/1057/900/675" alt="Seaside cliffs" />
+                <div class="meta">
+                    <span class="category">Travel</span>
+                    <h2>Seaside Cliffs</h2>
+                    <p>Date: 2024-09-22 | Time: 09:00 AM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item food" data-title="Fresh Market Berries" data-category="Food"
+                data-date="2024-10-02" data-time="01:15 PM">
+                <img class="photo" src="https://picsum.photos/id/1080/900/675" alt="Fresh market berries" />
+                <div class="meta">
+                    <span class="category">Food</span>
+                    <h2>Fresh Market Berries</h2>
+                    <p>Date: 2024-10-02 | Time: 01:15 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item nature" data-title="Sunlit Forest Path" data-category="Nature"
+                data-date="2024-06-14" data-time="08:50 AM">
+                <img class="photo" src="https://picsum.photos/id/1039/900/675" alt="Sunlit forest path" />
+                <div class="meta">
+                    <span class="category">Nature</span>
+                    <h2>Sunlit Forest Path</h2>
+                    <p>Date: 2024-06-14 | Time: 08:50 AM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item city" data-title="Riverside Bridge" data-category="City" data-date="2024-08-28"
+                data-time="05:20 PM">
+                <img class="photo" src="https://picsum.photos/id/1043/900/675" alt="Riverside bridge" />
+                <div class="meta">
+                    <span class="category">City</span>
+                    <h2>Riverside Bridge</h2>
+                    <p>Date: 2024-08-28 | Time: 05:20 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item travel" data-title="Tropical Island View" data-category="Travel"
+                data-date="2024-09-30" data-time="03:40 PM">
+                <img class="photo" src="https://picsum.photos/id/1074/900/675" alt="Tropical island view" />
+                <div class="meta">
+                    <span class="category">Travel</span>
+                    <h2>Tropical Island View</h2>
+                    <p>Date: 2024-09-30 | Time: 03:40 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item animals" data-title="Running Horse" data-category="Animals"
+                data-date="2024-07-09" data-time="04:05 PM">
+                <img class="photo" src="https://picsum.photos/id/1062/900/675" alt="Running horse" />
+                <div class="meta">
+                    <span class="category">Animals</span>
+                    <h2>Running Horse</h2>
+                    <p>Date: 2024-07-09 | Time: 04:05 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item nature" data-title="Desert Sunset" data-category="Nature"
+                data-date="2024-10-15" data-time="06:50 PM">
+                <img class="photo" src="https://picsum.photos/id/1050/900/675" alt="Desert sunset" />
+                <div class="meta">
+                    <span class="category">Nature</span>
+                    <h2>Desert Sunset</h2>
+                    <p>Date: 2024-10-15 | Time: 06:50 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item city" data-title="Urban Night Lights" data-category="City"
+                data-date="2024-11-02" data-time="09:30 PM">
+                <img class="photo" src="https://picsum.photos/id/1084/900/675" alt="Urban night lights" />
+                <div class="meta">
+                    <span class="category">City</span>
+                    <h2>Urban Night Lights</h2>
+                    <p>Date: 2024-11-02 | Time: 09:30 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+            <article class="gallery-item travel" data-title="Historic Alley" data-category="Travel"
+                data-date="2024-09-12" data-time="02:05 PM">
+                <img class="photo" src="https://picsum.photos/id/1056/900/675" alt="Historic alley" />
+                <div class="meta">
+                    <span class="category">Travel</span>
+                    <h2>Historic Alley</h2>
+                    <p>Date: 2024-09-12 | Time: 02:05 PM</p>
+                    <div class="actions">
+                        <button>View details</button>
+                        <button>Save</button>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="no-results" id="noResults">No matching photos were found. Try another search or category.</div>
+
+        <div class="lightbox" id="lightbox">
+            <div class="lightbox-background" data-close="true"></div>
+            <div class="lightbox-panel">
+                <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+                <div class="lightbox-controls">
+                    <button class="control-btn" id="prevBtn" aria-label="Previous">‹</button>
+                    <button class="control-btn" id="nextBtn" aria-label="Next">›</button>
+                </div>
+                <img id="lightboxImg" src="" alt="Expanded gallery photo" />
+                <div class="lightbox-caption" id="lightboxCaption"></div>
+            </div>
+        </div>
+
+        <aside class="settings-panel" id="settingsPanel" aria-labelledby="settingsToggle">
+            <h3>Gallery Settings</h3>
+            <div class="settings-group">
+                <div class="settings-label">Theme</div>
+                <select id="themeSelect">
+                    <option value="light">Light mode</option>
+                    <option value="dark">Dark mode</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <div class="settings-label">Layout</div>
+                <select id="layoutSelect">
+                    <option value="grid">Grid view</option>
+                    <option value="compact">Compact view</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label><input type="checkbox" id="descriptionCheckbox" checked /> Show descriptions</label>
+                <label><input type="checkbox" id="shadowCheckbox" checked /> Card shadows</label>
+                <label><input type="checkbox" id="hoverCheckbox" checked /> Hover zoom effect</label>
+            </div>
+            <div class="settings-footer">
+                <button type="button" class="close-settings" id="closeSettings">Close</button>
+                <button type="button" class="save-btn" id="applySettings">Apply</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>const galleryItems = Array.from(document.querySelectorAll('.gallery-item')), filterButtons = document.querySelectorAll('.filter-btn'), folderCards = document.querySelectorAll('.folder-card'), searchInput = document.getElementById('searchInput'), noResults = document.getElementById('noResults'), lightbox = document.getElementById('lightbox'), lightboxImg = document.getElementById('lightboxImg'), lightboxCaption = document.getElementById('lightboxCaption'), closeBtn = document.getElementById('closeBtn'), nextBtn = document.getElementById('nextBtn'), prevBtn = document.getElementById('prevBtn'), settingsToggle = document.getElementById('settingsToggle'), settingsPanel = document.getElementById('settingsPanel'), closeSettings = document.getElementById('closeSettings'), applySettings = document.getElementById('applySettings'), themeSelect = document.getElementById('themeSelect'), layoutSelect = document.getElementById('layoutSelect'), descriptionCheckbox = document.getElementById('descriptionCheckbox'), shadowCheckbox = document.getElementById('shadowCheckbox'), hoverCheckbox = document.getElementById('hoverCheckbox'), resetButton = document.getElementById('resetButton'), gallery = document.getElementById('gallery'); let currentIndex = 0, selectedCategory = 'all', visibleItems = []; const updateVisibleItems = () => { const q = searchInput.value.trim().toLowerCase(); visibleItems = galleryItems.filter(item => { const title = item.dataset.title.toLowerCase(), category = item.dataset.category.toLowerCase(), visible = (selectedCategory === 'all' || category === selectedCategory) && (!q || title.includes(q) || category.includes(q)); item.style.display = visible ? 'grid' : 'none'; return visible }); noResults.style.display = visibleItems.length ? 'none' : 'grid' }; const setActiveFilter = f => { selectedCategory = f; filterButtons.forEach(b => b.classList.toggle('active', b.dataset.filter === f)); folderCards.forEach(c => c.classList.toggle('active', c.dataset.filter === f)); updateVisibleItems() }; filterButtons.forEach(b => b.addEventListener('click', () => setActiveFilter(b.dataset.filter))); folderCards.forEach(c => c.addEventListener('click', () => setActiveFilter(c.dataset.filter))); searchInput.addEventListener('input', updateVisibleItems); resetButton.addEventListener('click', () => { searchInput.value = ''; setActiveFilter('all') }); const openLightbox = i => { if (!visibleItems.length) return; const item = visibleItems[i], img = item.querySelector('.photo'); lightboxImg.src = img.src; lightboxImg.alt = img.alt; lightboxCaption.innerHTML = `<strong>${item.dataset.title}</strong><br>${item.dataset.date} · ${item.dataset.time}`; currentIndex = i; lightbox.classList.add('open') }; galleryItems.forEach(item => item.addEventListener('click', () => { updateVisibleItems(); const index = visibleItems.indexOf(item); if (index >= 0) openLightbox(index) })); const closeLightbox = () => lightbox.classList.remove('open'), showNext = () => { if (!visibleItems.length) return; currentIndex = (currentIndex + 1) % visibleItems.length; openLightbox(currentIndex) }, showPrev = () => { if (!visibleItems.length) return; currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length; openLightbox(currentIndex) }; closeBtn.addEventListener('click', closeLightbox); nextBtn.addEventListener('click', showNext); prevBtn.addEventListener('click', showPrev); lightbox.addEventListener('click', e => { if (e.target.dataset.close === 'true') closeLightbox() }); document.addEventListener('keydown', e => { if (!lightbox.classList.contains('open')) return; e.key === 'ArrowRight' && showNext(); e.key === 'ArrowLeft' && showPrev(); e.key === 'Escape' && closeLightbox() }); const applyTheme = t => document.body.classList.toggle('dark', t === 'dark'), applyLayout = l => { gallery.classList.toggle('compact', l === 'compact'); galleryItems.forEach(item => item.classList.toggle('compact', l === 'compact')) }, applyDescriptions = s => galleryItems.forEach(item => item.querySelector('.meta').classList.toggle('hide-description', !s)), applyShadows = e => galleryItems.forEach(item => item.classList.toggle('no-shadow', !e)), applyHover = e => galleryItems.forEach(item => item.querySelector('.photo').style.transition = e ? 'transform 500ms ease, filter 500ms ease' : 'none'); settingsToggle.addEventListener('click', () => settingsPanel.classList.add('open')); closeSettings.addEventListener('click', () => settingsPanel.classList.remove('open')); applySettings.addEventListener('click', () => { applyTheme(themeSelect.value); applyLayout(layoutSelect.value); applyDescriptions(descriptionCheckbox.checked); applyShadows(shadowCheckbox.checked); applyHover(hoverCheckbox.checked); settingsPanel.classList.remove('open') }); document.addEventListener('keydown', e => { if (e.key === 'Escape') settingsPanel.classList.remove('open') }); updateVisibleItems(); applyTheme('light'); applyLayout('grid'); applyDescriptions(true); applyShadows(true); applyHover(true);</script>
+</body>
+
+</html>

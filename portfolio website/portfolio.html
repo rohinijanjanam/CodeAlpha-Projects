@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creative Portfolio</title>
+
+    <!-- GOOGLE FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR */
+
+        nav {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            padding: 20px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        nav h2 {
+            font-size: 28px;
+            color: #38bdf8;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        nav ul li a:hover {
+            color: #38bdf8;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            left: 0;
+            bottom: -5px;
+            background: #38bdf8;
+            transition: 0.3s;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* HERO SECTION */
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10%;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .hero-text {
+            flex: 1;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .hero-text h1 {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .hero-text span {
+            color: #38bdf8;
+        }
+
+        .hero-text p {
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: #38bdf8;
+            color: #0f172a;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .hero-img {
+            flex: 1;
+            text-align: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hero-img img {
+            width: 320px;
+            border-radius: 50%;
+            border: 6px solid #38bdf8;
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+        }
+
+        /* SECTION */
+
+        section {
+            padding: 100px 10%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 40px;
+            margin-bottom: 50px;
+            color: #38bdf8;
+        }
+
+        /* ABOUT */
+
+        .about {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            align-items: center;
+        }
+
+        .about img {
+            width: 100%;
+            border-radius: 20px;
+        }
+
+        .about-text p {
+            line-height: 1.8;
+            color: #cbd5e1;
+        }
+
+        /* SKILLS */
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .skill {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.4s;
+        }
+
+        .skill:hover {
+            transform: translateY(-10px);
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .skill i {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        /* PROJECTS */
+
+        .projects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: 0.4s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 20px;
+        }
+
+        .project-content h3 {
+            margin-bottom: 10px;
+        }
+
+        .project-content p {
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        /* RESUME */
+
+        .resume {
+            text-align: center;
+        }
+
+        /* CONTACT */
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .contact-info {
+            line-height: 2;
+        }
+
+        .contact-info i {
+            color: #38bdf8;
+            margin-right: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        input,
+        textarea {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #1e293b;
+            color: white;
+            outline: none;
+        }
+
+        textarea {
+            resize: none;
+            height: 150px;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            background: #38bdf8;
+            color: #0f172a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-5px);
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #020617;
+            color: #94a3b8;
+        }
+
+        /* ANIMATIONS */
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px) {
+
+            .hero-text h1 {
+                font-size: 42px;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                gap: 15px;
+            }
+
+            .hero {
+                padding-top: 120px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav>
+        <h2>MyPortfolio</h2>
+
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#resume">Resume</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+
+    <section class="hero" id="home">
+
+        <div class="hero-text">
+            <h1>Hello, I'm <span>ROHINI JANJANAM</span></h1>
+
+            <p>
+                Frontend Developer & Creative Designer passionate about
+                building beautiful, responsive and interactive websites.
+            </p>
+
+            <a href="#projects" class="btn">View Projects</a>
+        </div>
+
+        <div class="hero-img">
+            <img src="images/profile.jpg" alt="">
+        </div>
+
+    </section>
+
+    <!-- ABOUT -->
+
+    <section id="about">
+
+        <h2 class="section-title">About Me</h2>
+
+        <div class="about">
+
+            <img src="images/my-pic.jpeg" alt="">
+
+            <div class="about-text">
+
+                <p>
+                    I am a passionate web developer with experience in
+                    HTML, CSS, JavaScript and UI/UX design. I enjoy creating
+                    modern and responsive websites with smooth animations
+                    and engaging user experiences.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SKILLS -->
+
+    <section id="skills">
+
+        <h2 class="section-title">Skills</h2>
+
+        <div class="skills-container">
+
+            <div class="skill">
+                <i class="fa-brands fa-html5"></i>
+                <h3>HTML5</h3>
+            </div>
+
+            <div class="skill">
+                <i class="fa-brands fa-css3-alt"></i>
+                <h3>CSS3</h3>
+            </div>
+
+            <div class="skill">
+                <i class="fa-brands fa-js"></i>
+                <h3>JavaScript</h3>
+            </div>
+
+            <div class="skill">
+                <i class="fa-brands fa-python"></i>
+                <h3>Python</h3>
+            </div>
+
+            <div class="skill">
+                <i class="fa-brands fa-ui/ux"></i>
+                <h3>UI/UX Design</h3>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- PROJECTS -->
+
+    <section id="projects">
+
+        <h2 class="section-title">Projects</h2>
+
+        <div class="projects-container">
+
+            <div class="project-card">
+
+                <img src="images/music-player.jpg" alt="">
+
+                <div class="project-content">
+
+                    <h3>Music Player</h3>
+
+                    <p>
+                        Stylish music player built using HTML, CSS & JavaScript.
+                    </p>
+
+                    <a href="projects/MusicPlayer/index.html" class="btn">View Project</a>
+                </div>
+
+            </div>
+
+            <div class="project-card">
+
+                <img src="images/image-gallery.jpg" alt="">
+
+                <div class="project-content">
+
+                    <h3>Image Gallery</h3>
+
+                    <p>
+                        Responsive image gallery with filters and lightbox.
+                    </p>
+
+                    <a href="projects/ImageGallery/index.html" class="btn">View Project</a>
+
+                </div>
+
+            </div>
+
+            <div class="project-card">
+
+                <img src="images/calculator.jpg" alt="">
+
+                <div class="project-content">
+
+                    <h3>Calculator App</h3>
+
+                    <p>
+                        Interactive calculator with keyboard support.
+                    </p>
+
+                    <a href="projects/Calculator/index.html" class="btn">View Project</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- RESUME -->
+
+    <section id="resume" class="resume">
+
+        <h2 class="section-title">Resume</h2>
+
+        <p style="margin-bottom:30px;color:#cbd5e1;">
+            Download my latest resume below.
+        </p>
+
+        <a href="resume/MyResume.pdf" download class="btn">Download Resume</a>
+    </section>
+
+    <!-- CONTACT -->
+
+    <section id="contact">
+
+        <h2 class="section-title">Contact Me</h2>
+
+        <div class="contact-container">
+
+            <div class="contact-info">
+
+                <p><i class="fa-solid fa-envelope"></i> rohinijanjanam1908@gmail.com</p>
+
+                <p><i class="fa-solid fa-phone"></i> +91 7028668406</p>
+
+                <p><i class="fa-solid fa-location-dot"></i> India</p>
+
+            </div>
+
+            <form>
+
+                <input type="text" placeholder="Your Name">
+
+                <input type="email" placeholder="Your Email">
+
+                <textarea placeholder="Your Message"></textarea>
+
+                <button type="submit">Send Message</button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer>
+        © 2026 ROHINI JANJANAM | All Rights Reserved
+    </footer>
+
+</body>
+
+</html>

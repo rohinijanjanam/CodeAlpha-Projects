@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Calculator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at top, #4f8cff, #0f2a56 60%);
+        }
+
+        .calculator {
+            width: min(380px, 100%);
+            padding: 24px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+            backdrop-filter: blur(12px);
+        }
+
+        .screen {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .display {
+            width: 100%;
+            height: 68px;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(15, 42, 86, 0.12);
+            background: linear-gradient(180deg, #f9fbff, #eef4ff);
+            color: #102a43;
+            font-size: 2rem;
+            text-align: right;
+            letter-spacing: 0.02em;
+        }
+
+        .result-preview {
+            min-height: 24px;
+            color: #556c86;
+            text-align: right;
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .buttons button {
+            height: 62px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+            box-shadow: 0 10px 18px rgba(15, 42, 86, 0.08);
+        }
+
+        .buttons button:hover {
+            transform: translateY(-2px);
+        }
+
+        .buttons button:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 10px rgba(15, 42, 86, 0.12);
+        }
+
+        .number {
+            background: #eef2ff;
+            color: #102a43;
+        }
+
+        .operator {
+            background: #2f80ed;
+            color: white;
+        }
+
+        .equal {
+            background: #10b981;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .clear,
+        .delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 380px) {
+            .calculator {
+                padding: 18px;
+            }
+
+            .buttons button {
+                height: 58px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <div class="screen">
+            <input type="text" id="display" class="display" value="" disabled aria-label="Calculator display" />
+            <div id="resultPreview" class="result-preview">Ready</div>
+        </div>
+
+        <div class="buttons">
+            <button type="button" class="clear" onclick="clearDisplay()">C</button>
+            <button type="button" class="delete" onclick="deleteLast()">⌫</button>
+            <button type="button" class="operator" onclick="appendValue('/')">÷</button>
+            <button type="button" class="operator" onclick="appendValue('*')">×</button>
+
+            <button type="button" class="number" onclick="appendValue('7')">7</button>
+            <button type="button" class="number" onclick="appendValue('8')">8</button>
+            <button type="button" class="number" onclick="appendValue('9')">9</button>
+            <button type="button" class="operator" onclick="appendValue('-')">-</button>
+
+            <button type="button" class="number" onclick="appendValue('4')">4</button>
+            <button type="button" class="number" onclick="appendValue('5')">5</button>
+            <button type="button" class="number" onclick="appendValue('6')">6</button>
+            <button type="button" class="operator" onclick="appendValue('+')">+</button>
+
+            <button type="button" class="number" onclick="appendValue('1')">1</button>
+            <button type="button" class="number" onclick="appendValue('2')">2</button>
+            <button type="button" class="number" onclick="appendValue('3')">3</button>
+            <button type="button" class="number zero" onclick="appendValue('0')">0</button>
+
+            <button type="button" class="number" onclick="appendValue('.')">.</button>
+            <button type="button" class="equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const resultPreview = document.getElementById('resultPreview');
+        let expression = '';
+
+        function updateDisplay() {
+            display.value = expression || '0';
+            updatePreview();
+        }
+
+        function appendValue(value) {
+            if (expression === 'Error') {
+                expression = '';
+            }
+
+            const lastChar = expression.slice(-1);
+            const operators = ['+', '-', '*', '/'];
+
+            if (operators.includes(lastChar) && operators.includes(value)) {
+                expression = expression.slice(0, -1) + value;
+            } else if (value === '.' && lastChar === '.') {
+                return;
+            } else {
+                expression += value;
+            }
+
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            expression = '';
+            updateDisplay();
+            resultPreview.textContent = 'Ready';
+        }
+
+        function deleteLast() {
+            expression = expression.slice(0, -1);
+            updateDisplay();
+        }
+
+        function calculate() {
+            const result = evaluateExpression(expression);
+            if (result === null) {
+                display.value = 'Error';
+                resultPreview.textContent = 'Invalid expression';
+                expression = '';
+            } else {
+                expression = String(result);
+                display.value = expression;
+                resultPreview.textContent = 'Result';
+            }
+        }
+
+        function updatePreview() {
+            const result = evaluateExpression(expression);
+            if (expression === '') {
+                resultPreview.textContent = 'Ready';
+            } else if (result === null) {
+                resultPreview.textContent = '...';
+            } else {
+                resultPreview.textContent = `= ${result}`;
+            }
+        }
+
+        function evaluateExpression(expr) {
+            if (!expr || /[^0-9+\-*/.()\s]/.test(expr)) {
+                return null;
+            }
+
+            try {
+                const value = Function(`"use strict"; return (${expr})`)();
+                if (typeof value !== 'number' || !isFinite(value)) {
+                    return null;
+                }
+                return Number.parseFloat(value.toPrecision(12)).toString();
+            } catch {
+                return null;
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            const operators = ['+', '-', '*', '/'];
+
+            if (key >= '0' && key <= '9') {
+                appendValue(key);
+            } else if (operators.includes(key) || key === '.') {
+                appendValue(key);
+            } else if (key.toLowerCase() === 'x') {
+                appendValue('*');
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+                clearDisplay();
+            }
+        });
+
+        updateDisplay();
+    </script>
+</body>
+
+</html>
