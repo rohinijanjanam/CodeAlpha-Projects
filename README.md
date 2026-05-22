@@ -4,24 +4,24 @@ This repository contains multiple frontend projects built using HTML, CSS, and J
 
 Projects Included
 
-##Calculator App
+##Calculator App : 
   Basic arithmetic operations
   Keyboard support
   Responsive design
   
-##Photo Gallery
+##Photo Gallery : 
   Image search and filters
   Dark/Light mode
   Lightbox preview
   Responsive layout
   
-##Music Player
+##Music Player : 
   Playlist support
   Shuffle and autoplay
   Progress bar
   Volume controls
   
-##Portfolio Website
+##Portfolio Website : 
   About section
   Skills section
   Projects showcase
